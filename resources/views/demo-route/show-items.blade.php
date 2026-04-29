@@ -1,3 +1,3 @@
-<x-layout :title="$title">
+<x-demo-layout :title="$title">
     <h1>Show Items</h1>
-</x-layout>
+</x-demo-layout>
