@@ -27,15 +27,15 @@ Route::post('/demo-route/store-item', [DemoRouteController::class, 'storeItem'])
 /**
  * Show the form to update an existing item.
  * 
- * @route GET /demo-route/update-item/{id}
- * @param int $id The ID of the item to update
+ * @route PATCH /demo-route/update-item
+ * @param Request $request The request object containing the ID and status of the item to update
  */
-Route::get('/demo-route/update-item/{id}', [DemoRouteController::class, 'updateItem'])->name('update-item');
+Route::patch('/demo-route/update-item', [DemoRouteController::class, 'updateItem'])->name('update-item');
 
 /**
  * Delete an item by its ID.
  * 
- * @route GET /demo-route/delete-item/{id}
- * @param int $id The ID of the item to delete
+ * @route DELETE /demo-route/delete-item
+ * @param Request $request The request object containing the ID of the item to delete
  */
-Route::get('/demo-route/delete-item/{id}', [DemoRouteController::class, 'deleteItem'])->name('delete-item');
+Route::delete('/demo-route/delete-item', [DemoRouteController::class, 'deleteItem'])->name('delete-item');

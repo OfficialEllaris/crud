@@ -30,7 +30,7 @@ class DemoRouteController extends Controller
     public function createItem()
     {
         $title = "Create Item";
-        $items = session("items", []);
+        $items = collect(Session::get("items"));
 
         return view('demo-route.create-item', [
             'title' => $title,
@@ -54,6 +54,7 @@ class DemoRouteController extends Controller
         Session::push('items', [
             'id' => uniqid(),
             'name' => $request->input('taskName'),
+            'status' => 'pending',
         ]);
 
         return redirect()->route('create-item')->with('feedback', 'Item added!');
@@ -62,22 +63,37 @@ class DemoRouteController extends Controller
     /**
      * Show the form to update an existing item by its ID.
      *
-     * @param  mixed  $id  The ID of the item to update
-     * @return \Illuminate\View\View
+     * @param Request $request The request object containing the ID and status of the item to update
      */
-    public function updateItem($id)
+    public function updateItem(Request $request)
     {
-        return view('demo-route.update-item', ['id' => $id]);
+        $items = session('items', []);
+
+        $targetItem = collect($items)->search(fn($item) => $item['id'] === $request->input('id'));
+
+        if ($targetItem !== false) {
+            $items[$targetItem]['status'] = $items[$targetItem]['status'] === 'completed' ? 'pending' : 'completed';
+        }
+
+        Session::put('items', $items);
+
+        return redirect()->route('create-item')->with('feedback', 'Item updated!');
     }
 
     /**
      * Delete an item by its ID.
      *
-     * @param  mixed  $id  The ID of the item to delete
-     * @return string
+     * @param Request $request The request object containing the ID of the item to delete
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteItem($id)
+    public function deleteItem(Request $request)
     {
-        return "Item deleted: $id";
+        $items = collect(session('items', []));
+
+        $filtered = $items->reject(fn($item) => $item['id'] === $request->input('id'));
+
+        Session::put('items', $filtered->values()->all());
+
+        return redirect()->route('create-item')->with('feedback', 'Item deleted!');
     }
 }

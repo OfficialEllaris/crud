@@ -3,7 +3,7 @@
 
         {{-- Feedback flash message --}}
         @if(session('feedback'))
-            <div role="alert" class="alert alert-success alert-soft">
+            <div role="alert" class="alert alert-success alert-soft" id="feedback">
                 <span>{{ session('feedback') }}</span>
             </div>
         @endif
@@ -37,14 +37,26 @@
 
                     {{-- Checkbox and item name --}}
                     <div class="flex items-center gap-2">
-                        <input type="checkbox">
-                        <span class="text-[10px]">{{ $item['name'] }}</span>
+                        <form action="{{ route('update-item') }}" method="post">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="id" value="{{ $item['id'] }}">
+                            <input type="checkbox" {{ $item['status'] === 'completed' ? 'checked' : '' }} onchange="this.form.submit();">
+                        </form>
+
+                        <span
+                            class="text-[10px] {{ $item['status'] === 'completed' ? 'line-through' : '' }}">{{ $item['name'] }}</span>
                     </div>
 
-                    {{-- Remove item button --}}
-                    <button>
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+                    <form action="{{ route('delete-item') }}" method="post">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="id" value="{{ $item['id'] }}">
+                        {{-- Remove item button --}}
+                        <button type="submit" class="btn btn-sm btn-square cus--bg-primary text-white">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </form>
 
                 </div>
 
@@ -59,7 +71,12 @@
         @endif
 
         {{-- Remaining todos count --}}
-        <em class="text-sm font-semibold">Your remaining todos: 3</em>
+
+        @php
+        $remainingItems = $items->where('status', 'pending')->count()
+        @endphp
+
+        <em class="text-sm font-semibold">Your remaining todos: {{ $remainingItems }}</em>
 
         {{-- Navigation link --}}
         <a href="{{ route('show-items') }}" class="link text-sm">GoTo Homepage</a>
